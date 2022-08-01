@@ -83,7 +83,7 @@ function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, a
                     borderColor: isFocused ? 'cyan' : '#fff'
                 }}>
                     <View>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#fff' }}>{video.title}</Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 20, color: '#fff' }}>{video.title}</Text>
                         {'episodes' in video && <Text style={{ color: '#999' }}>{video.episodes}集</Text>}
                     </View>
                 </View>

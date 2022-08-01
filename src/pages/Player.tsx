@@ -16,7 +16,7 @@ const Player: FunctionComponent = () => {
     )
 
     return (
-        <VideoPlayer url={video.url} />
+        <VideoPlayer keysEnable url={video.url} />
     )
 }
 

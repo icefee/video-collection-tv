@@ -5,13 +5,14 @@ import LoadingIndicator from './LoadingIndicator';
 
 interface VideoPlayerProps {
     url: string;
-    duration?: number;
+    keysEnable?: boolean;
 }
 
-function VideoPlayer({ url }: VideoPlayerProps) {
+function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
 
     const [loading, setLoading] = useState(false);
     const playerRef = useRef<PlayerRef>()
+    const [paused, setPaused] = useState(false)
     const [process, setProcess] = useState<ProcessParams>({
         currentTime: 0,
         playableDuration: 0,
@@ -27,16 +28,21 @@ function VideoPlayer({ url }: VideoPlayerProps) {
     }
 
     const tvEventHandler = (event: HWEvent) => {
-        if (event.eventType === 'left' || event.eventType === 'right') {
-            playerRef.current?.seek(
-                Math.max(
-                    0,
-                    Math.min(
-                        event.eventType === 'left' ? process.currentTime - 15 : process.currentTime + 15,
-                        process.seekableDuration
+        if (keysEnable) {
+            if (event.eventType === 'left' || event.eventType === 'right') {
+                playerRef.current?.seek(
+                    Math.max(
+                        0,
+                        Math.min(
+                            event.eventType === 'left' ? process.currentTime - 15 : process.currentTime + 15,
+                            process.seekableDuration
+                        )
                     )
-                )
-            );
+                );
+            }
+            else if (event.eventType === 'playPause') {
+                setPaused(paused => !paused)
+            }
         }
     };
 
@@ -53,11 +59,12 @@ function VideoPlayer({ url }: VideoPlayerProps) {
         }}>
             <Video
                 source={{ uri: url }}
-                controls={!loading}
+                controls={!loading && keysEnable}
                 onReadyForDisplay={() => setLoading(false)}
                 onProgress={onProgress}
                 /* @ts-ignore */
                 ref={ref => playerRef.current = ref}
+                paused={paused}
                 style={{
                     width: '100%',
                     height: '100%',
