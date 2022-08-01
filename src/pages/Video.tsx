@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, ScrollView, TouchableHighlight, Text, ActivityIndicator } from 'react-native';
+import { View, ScrollView, TouchableHighlight, Text } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import VideoPlayer from '../components/VideoPlayer';
-import { useTheme } from '../hook/theme';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (url_template, m3u8) => {
     if (typeof m3u8 === 'string') {
@@ -21,7 +21,7 @@ export const getM3u8Uri: (url_template: string, m3u8: M3u8Video) => string = (ur
 function Video() {
     const route = useRoute()
     const navigation = useNavigation()
-    const { paperColor, textColor } = useTheme()
+    const [isVideoFocus, setIsVideoFocus] = useState(false)
 
     const videoInfo = useMemo<Video>(
         () => route.params as Video,
@@ -32,6 +32,15 @@ function Video() {
         [videoInfo]
     )
     const [playingUrl, setPlayingUrl] = useState('')
+
+    const setFullscreen = () => {
+        navigation.navigate({
+            name: 'player' as never,
+            params: { url: playingUrl } as never
+        })
+    }
+
+    const isActiveVideo = (m3u8: M3u8Video) => getM3u8Uri((videoInfo as Episode).url_template!, m3u8) === playingUrl;
 
     useEffect(() => {
         if (isEpisode) {
@@ -44,19 +53,45 @@ function Video() {
             const video = videoInfo as Film;
             setPlayingUrl(video.m3u8_url)
         }
-        navigation.setOptions({
-            title: videoInfo.title,
-        })
     }, [])
 
     return (
-        <View style={{ flex: 1 }}>
-            {playingUrl === '' ? <ActivityIndicator /> : <VideoPlayer url={playingUrl} />}
-            <View style={{ flex: 1, backgroundColor: paperColor }}>
+        <View style={{ flex: 1, backgroundColor: '#222' }}>
+            <View style={{
+                padding: 10,
+                flexDirection: 'row'
+            }}>
+                <View style={{
+                    width: 300,
+                    height: 200,
+                    borderWidth: 4,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderColor: isVideoFocus ? 'cyan' : '#fff'
+                }}>
+                    {playingUrl === '' ? <LoadingIndicator /> : (
+                        <TouchableHighlight style={{
+                            width: '100%',
+                            height: '100%',
+                        }} onFocus={() => setIsVideoFocus(true)} onBlur={() => setIsVideoFocus(false)} onPress={setFullscreen}>
+                            <VideoPlayer url={playingUrl} />
+                        </TouchableHighlight>
+                    )}
+                </View>
+                <View style={{ padding: 10 }}>
+                    <Text style={{ fontSize: 20, color: '#fff' }}>{videoInfo.title}</Text>
+                    <View style={{
+                        marginTop: 10
+                    }}>
+                        <Text style={{ color: '#fff' }}>暂无简介</Text>
+                    </View>
+                </View>
+            </View>
+            <View style={{ flex: 1 }}>
                 <View style={{
                     padding: 10
                 }}>
-                    <Text style={{ color: textColor }}>选集</Text>
+                    <Text style={{ color: '#fff' }}>选集</Text>
                 </View>
                 {
                     isEpisode ? (
@@ -75,15 +110,24 @@ function Video() {
                                     {
                                         (videoInfo as Episode).m3u8_list.map(
                                             (m3u8, index) => (
-                                                <EpisodeSelection
-                                                    key={index}
-                                                    active={getM3u8Uri((videoInfo as Episode).url_template!, m3u8) === playingUrl}
-                                                    onPress={
+                                                <View key={index} style={{
+                                                    width: '12.5%',
+                                                    padding: 5
+                                                }}>
+                                                    <TouchableHighlight underlayColor="rgba(0, 255, 255, .3)" hasTVPreferredFocus={index === 0} style={{
+                                                        borderWidth: 2,
+                                                        height: 40,
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        borderColor: isActiveVideo(m3u8) ? 'cyan' : '#fff'
+                                                    }} onFocus={
                                                         () => setPlayingUrl(
                                                             getM3u8Uri((videoInfo as Episode).url_template!, m3u8)
                                                         )
-                                                    }
-                                                >第{index + 1}集</EpisodeSelection>
+                                                    } onPress={setFullscreen}>
+                                                        <Text style={{ color: '#fff' }}>第{index + 1}集</Text>
+                                                    </TouchableHighlight>
+                                                </View>
                                             )
                                         )
                                     }
@@ -99,37 +143,6 @@ function Video() {
                     )
                 }
             </View>
-        </View>
-    )
-}
-
-function EpisodeSelection({ active, children, onPress }: { active: boolean, children: React.ReactNode, onPress: () => void }) {
-
-    const { textColor, backgroundColor } = useTheme()
-
-    const viewStyle = {
-        borderColor: textColor,
-        backgroundColor: active ? 'purple' : 'transparent'
-    }
-
-    const textStyle = {
-        color: textColor
-    }
-
-    return (
-        <View style={{
-            width: '20%',
-            padding: 5
-        }}>
-            <TouchableHighlight underlayColor="purple" style={{
-                borderWidth: 2,
-                height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
-                ...viewStyle
-            }} onPress={onPress}>
-                <Text style={{ ...textStyle }}>{children}</Text>
-            </TouchableHighlight>
         </View>
     )
 }

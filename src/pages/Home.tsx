@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Pressable, View, ActivityIndicator, Text, TouchableHighlight, ImageBackground, Image, TVEventHandler } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../hook/theme';
+import { ScrollView, View, ActivityIndicator, Text, TouchableHighlight, ImageBackground } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useFocusStoreKey } from '../hook/store';
+import LoadingIndicator from '../components/LoadingIndicator'
 
 async function getVideos() {
     const url = 'https://code-space.netlify.app/flutter/videos.json'
     const response = await fetch(url)
-    const json: { videos: Section[] } = await response.json()
+    const json = await response.json()
     // const json = html.match( // /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*)<\/script\>/
-    //     new RegExp('(?<=<script id="__NEXT_DATA__" type="application/json">).+?(?=</script>)', 'g')
-    // )
+    //     // new RegExp('(?<=<script id="__NEXT_DATA__" type="application/json">).+?(?=</script>)', 'g')
+    //     /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*)<\/script\>/
+    // )![0]
+    // // { videos: Section[] }
+    // const { props: { pageProps: { videos } } }: {
+    //     props: {
+    //         pageProps: {
+    //             videos: Section[]
+    //         }
+    //     }
+    // } = JSON.parse(json);
+    // return videos;
     return json.videos;
 }
 
@@ -17,7 +28,9 @@ function Home() {
 
     const [loading, setLoading] = useState(false)
     const [videoList, setVideoList] = useState<Section[]>([])
-    const { backgroundColor } = useTheme()
+    const [focused, setFocused] = useState(0)
+    const isFocused = useIsFocused();
+    const [storeFocus, setStoreFocus] = useFocusStoreKey('home')
 
     const getVideoList = async () => {
         setLoading(true)
@@ -30,17 +43,31 @@ function Home() {
         getVideoList()
     }, [])
 
+    useEffect(() => {
+        if (isFocused) {
+            setFocused(storeFocus)
+        }
+        else {
+            setStoreFocus(focused)
+            setFocused(-1)
+        }
+    }, [isFocused])
+
+    const commonStyle = {
+        flex: 1,
+        backgroundColor: '#000'
+    }
+
     return loading ? (
         <View style={{
-            flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor,
+            ...commonStyle
         }}>
-            <ActivityIndicator size="large" color="purple" />
+            <LoadingIndicator />
         </View>
     ) : (
-        <ScrollView style={{ flex: 1, backgroundColor: '#000' }} contentInsetAdjustmentBehavior="automatic">
+        <ScrollView style={commonStyle} contentInsetAdjustmentBehavior="automatic">
             <View style={{
                 flexDirection: 'row',
                 flexWrap: 'wrap'
@@ -48,7 +75,13 @@ function Home() {
                 {
                     videoList.map(
                         (section, index) => (
-                            <VideoSection key={index} section={section} />
+                            <VideoSection
+                                key={index}
+                                index={index}
+                                autoFocus={focused}
+                                onFocus={index => setFocused(index)}
+                                section={section}
+                            />
                         )
                     )
                 }
@@ -57,23 +90,28 @@ function Home() {
     )
 }
 
-function VideoSection({ section }: { section: Section }) {
+function VideoSection({ index, autoFocus, section, onFocus }: { index: number, autoFocus: number, onFocus: (index: number) => void, section: Section }) {
 
-    const [isFocused, setIsFocused] = useState(false)
+    const navigation = useNavigation();
+    const isFocused = autoFocus === index;
 
     return (
         <TouchableHighlight style={{
             width: '33.333333%',
-        }} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} onPress={
-            () => console.log(section.section)
+        }} hasTVPreferredFocus={isFocused} onFocus={() => onFocus(index)} onPress={
+            () => navigation.navigate({
+                name: 'collection' as never,
+                params: section as never
+            })
         }>
             <View style={{
                 padding: 10
             }}>
                 <View style={{
-                    borderRadius: 15,
+                    borderRadius: 16,
                     overflow: 'hidden',
                     borderWidth: 8,
+                    opacity: isFocused ? 1 : .5,
                     borderColor: isFocused ? 'cyan' : '#fff',
                     height: 200
                 }}>
@@ -93,52 +131,8 @@ function VideoSection({ section }: { section: Section }) {
                         </View>
                     </ImageBackground>
                 </View>
-                {/* <ScrollView style={{
-                paddingHorizontal: 10
-            }} contentInsetAdjustmentBehavior="automatic">
-                {
-                    section.series.map(
-                        (video, index) => (
-                            <VideoCollection key={index} video={video} />
-                        )
-                    )
-                }
-            </ScrollView> */}
             </View>
         </TouchableHighlight>
-    )
-}
-
-function VideoCollection({ video }: { video: Video }) {
-    const navigation = useNavigation();
-    const { textColor, borderColor } = useTheme();
-    return (
-        <Pressable onPress={() => navigation.navigate({
-            name: 'video' as never,
-            params: video as never
-        })}>
-            <View style={{
-                paddingVertical: 10,
-                paddingHorizontal: 5,
-                borderTopWidth: 1,
-                borderTopColor: borderColor,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-            }}>
-                <View>
-                    <Text style={{ fontWeight: 'bold', fontSize: 16, color: textColor }}>{video.title}</Text>
-                    {'episodes' in video && <Text style={{ color: '#999' }}>{video.episodes}集</Text>}
-                </View>
-                <View>
-                    <Image style={{
-                        resizeMode: 'center',
-                        width: 24,
-                        height: 24
-                    }} source={require('../assets/arrow-right.png')} />
-                </View>
-            </View>
-        </Pressable>
     )
 }
 

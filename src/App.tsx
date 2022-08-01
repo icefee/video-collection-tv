@@ -7,29 +7,27 @@ import {
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from './hook/theme';
+import { FocusKeyStoreProvider } from './hook/store'
 
 import Home from './pages/Home';
+import Collection from './pages/Collection'
 import Video from './pages/Video';
-import 'react-native/tvos-types.d'
+import Player from './pages/Player';
+// import 'react-native/tvos-types.d'
 
 // declare const global: {HermesInternal: null | {}};
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const { statusBarColor, statusBarStyle, headerColor, textColor } = useTheme();
+  const { statusBarColor, statusBarStyle } = useTheme();
 
   const backgroundStyle = {
     backgroundColor: statusBarColor,
   };
 
-  const screenHeaderStyle = {
-    headerStyle: {
-      backgroundColor: headerColor
-    },
-    headerTitleStyle: {
-      color: textColor
-    }
+  const screenOptions = {
+    headerShown: false,
   }
 
   return (
@@ -38,19 +36,16 @@ const App = () => {
       <View style={{
         height: '100%'
       }}>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="home">
-            <Stack.Screen name="home" component={Home} options={{
-              title: '视频文件夹',
-              headerShown: false,
-              ...screenHeaderStyle
-            }} />
-            <Stack.Screen name="video" component={Video} options={{
-              headerShown: false,
-              ...screenHeaderStyle,
-            }} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <FocusKeyStoreProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="home">
+              <Stack.Screen name="home" component={Home} options={screenOptions} />
+              <Stack.Screen name="collection" component={Collection} options={screenOptions} />
+              <Stack.Screen name="video" component={Video} options={screenOptions} />
+              <Stack.Screen name="player" component={Player} options={screenOptions} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </FocusKeyStoreProvider>
       </View>
     </SafeAreaView>
   );
