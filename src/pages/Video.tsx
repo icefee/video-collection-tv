@@ -80,14 +80,14 @@ function Video() {
                     padding: 10,
                     flexDirection: 'row'
                 }}>
-                    <View style={{
+                    {/* <View style={{
                         width: 300,
                         height: 200,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
                         {playingUrl === '' ? <LoadingIndicator /> : <VideoPlayer url={playingUrl} />}
-                    </View>
+                    </View> */}
                     <View style={{ padding: 10 }}>
                         <Text style={{ fontSize: 20, color: '#fff' }}>{videoInfo.title}</Text>
                         <View style={{

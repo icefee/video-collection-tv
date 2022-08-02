@@ -29,6 +29,8 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
 
     const [totalDuration, setTotalDuration] = useState(0)
 
+    const [keyType, setKeyType] = useState('none')
+
     const [process, setProcess] = useState<ProcessParams>({
         currentTime: 0,
         playableDuration: 0,
@@ -44,6 +46,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
     }
 
     const tvEventHandler = (event: HWEvent) => {
+        setKeyType(event.eventType)
         if (keysEnable) {
             if (event.eventType === 'left' || event.eventType === 'right') {
                 playerRef.current?.seek(
@@ -57,7 +60,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                 );
                 setSeeking(true)
             }
-            else if (event.eventType === 'select') {
+            else if (event.eventType === 'select' || event.eventType === 'playPause' || event.eventType === 'center') {
                 setPaused(paused => !paused)
             }
         }
@@ -166,6 +169,16 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     </View>
                 )
             }
+            <View style={{
+                position: 'absolute',
+                right: 20,
+                top: 20
+            }}>
+                <Text style={{
+                    color: '#fff',
+                    fontSize: 18
+                }}>keyType: {keyType}</Text>
+            </View>
         </View>
     )
 }
