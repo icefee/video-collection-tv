@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, useTVEventHandler, type HWEvent, Image } from 'react-native';
 import Video, { type ProcessParams, type PlayerRef, type VideoInfo } from 'react-native-video';
 import LoadingIndicator from './LoadingIndicator';
+import { FadeView } from './Animated'
 
 interface VideoPlayerProps {
     url: string;
@@ -72,7 +73,6 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current as number)
         }
-        console.log('seekend')
         timeoutRef.current = setTimeout(() => {
             setSeeking(false)
         }, 5000);
@@ -101,70 +101,55 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     height: '100%',
                 }}
             />
-            {
-                paused && (
+            <FadeView style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0, 0, 0, .3)',
+            }} in={paused}>
+                <Image
+                    source={require('../assets/pause.png')}
+                    style={{
+                        width: 100,
+                        resizeMode: 'contain'
+                    }}
+                />
+            </FadeView>
+            <FadeView in={paused || seeking} style={{
+                position: 'absolute',
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, .3)'
+            }}>
+                <Text style={{ color: '#fff' }}>{timeFormatter(process.currentTime)}</Text>
+                <View style={{
+                    flex: 1,
+                    height: 4,
+                    backgroundColor: '#777',
+                    marginHorizontal: 10,
+                    position: 'relative'
+                }}>
                     <View style={{
                         position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
-                        <View
-                            style={{
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%',
-                                backgroundColor: '#000',
-                                opacity: .3
-                            }}
-                        />
-                        <Image
-                            source={require('../assets/pause.png')}
-                            style={{
-                                width: 100,
-                                resizeMode: 'contain'
-                            }}
-                        />
-                    </View>
-                )
-            }
-            {
-                (paused || seeking) && (
+                        left: 0,
+                        width: process.playableDuration * 100 / totalDuration + '%',
+                        backgroundColor: '#ccc',
+                        height: '100%'
+                    }} />
                     <View style={{
                         position: 'absolute',
-                        width: '100%',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        bottom: 0
-                    }}>
-                        <Text style={{ color: '#fff' }}>{timeFormatter(process.currentTime)}</Text>
-                        <View style={{
-                            flex: 1,
-                            height: 4,
-                            backgroundColor: '#777',
-                            marginHorizontal: 10,
-                            position: 'relative'
-                        }}>
-                            <View style={{
-                                position: 'absolute',
-                                left: 0,
-                                width: process.playableDuration * 100 / totalDuration + '%',
-                                backgroundColor: '#ccc',
-                                height: '100%'
-                            }} />
-                            <View style={{
-                                position: 'absolute',
-                                left: 0,
-                                width: process.currentTime * 100 / totalDuration + '%',
-                                backgroundColor: 'cyan',
-                                height: '100%'
-                            }} />
-                        </View>
-                        <Text style={{ color: '#fff' }}>{timeFormatter(totalDuration)}</Text>
-                    </View>
-                )
-            }
+                        left: 0,
+                        width: process.currentTime * 100 / totalDuration + '%',
+                        backgroundColor: 'cyan',
+                        height: '100%'
+                    }} />
+                </View>
+                <Text style={{ color: '#fff' }}>{timeFormatter(totalDuration)}</Text>
+            </FadeView>
             {
                 loading && (
                     <View style={{
