@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
-import { ScrollView, View, Text, TouchableHighlight } from 'react-native';
+import { ScrollView, View, Text, TouchableHighlight, ImageBackground } from 'react-native';
 import { useFocusStoreKey } from '../hook/store'
+import BackgroundView from '../components/BackgroudView';
 
 function Collection() {
 
@@ -26,38 +27,44 @@ function Collection() {
         }
     }, [isFocused])
 
+    useEffect(() => {
+        return () => setStoreFocus(0)
+    }, [])
+
     return (
-        <View style={{
-            width: '100%',
-            backgroundColor: '#000',
-            flex: 1
-        }}>
+        <BackgroundView>
             <View style={{
-                padding: 20
+                width: '100%',
+                backgroundColor: 'transparent',
+                flex: 1
             }}>
-                <Text style={{
-                    fontSize: 32,
-                    color: '#fff'
-                }}>{collection.section}</Text>
-            </View>
-            <ScrollView style={{ flex: 1 }} contentInsetAdjustmentBehavior="automatic">
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                    {
-                        collection.series.map(
-                            (video, index) => (
-                                <VideoCollection
-                                    video={video}
-                                    autoFocus={focused}
-                                    onFocus={index => setFocused(index)}
-                                    index={index}
-                                    key={index}
-                                />
-                            )
-                        )
-                    }
+                <View style={{
+                    padding: 20
+                }}>
+                    <Text style={{
+                        fontSize: 32,
+                        color: '#fff'
+                    }}>{collection.section}</Text>
                 </View>
-            </ScrollView>
-        </View>
+                <ScrollView style={{ flex: 1 }} contentInsetAdjustmentBehavior="automatic">
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                        {
+                            collection.series.map(
+                                (video, index) => (
+                                    <VideoCollection
+                                        video={video}
+                                        autoFocus={focused}
+                                        onFocus={index => setFocused(index)}
+                                        index={index}
+                                        key={index}
+                                    />
+                                )
+                            )
+                        }
+                    </View>
+                </ScrollView>
+            </View>
+        </BackgroundView>
     )
 }
 
@@ -67,8 +74,8 @@ function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, a
     const isFocused = autoFocus === index;
 
     return (
-        <TouchableHighlight hasTVPreferredFocus={isFocused} style={{
-            width: '33.333333%'
+        <TouchableHighlight underlayColor="transparent" hasTVPreferredFocus={isFocused} style={{
+            width: '25%'
         }} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
             name: 'video' as never,
             params: video as never
@@ -77,15 +84,26 @@ function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, a
                 padding: 10
             }}>
                 <View style={{
-                    padding: 10,
                     borderWidth: 4,
                     borderRadius: 8,
-                    borderColor: isFocused ? 'cyan' : '#fff'
+                    borderColor: isFocused ? 'cyan' : '#fff',
+                    opacity: isFocused ? 1 : .5
                 }}>
-                    <View>
-                        <Text style={{ fontWeight: 'bold', fontSize: 20, color: '#fff' }}>{video.title}</Text>
-                        {'episodes' in video && <Text style={{ color: '#999' }}>{video.episodes}集</Text>}
-                    </View>
+                    <ImageBackground resizeMode="cover" source={require('../assets/episode.jpeg')} style={{
+                        flex: 1,
+                        justifyContent: 'flex-end',
+                        alignItems: 'flex-end',
+                        height: 150
+                    }}>
+                        <View style={{
+                            padding: 5,
+                            justifyContent: 'flex-end',
+                            alignItems: 'flex-end',
+                        }}>
+                            <Text style={{ fontSize: 20, color: '#fff' }}>{video.title}</Text>
+                            {'episodes' in video && <Text style={{ color: '#aaa' }}>{video.episodes}集</Text>}
+                        </View>
+                    </ImageBackground>
                 </View>
             </View>
         </TouchableHighlight>

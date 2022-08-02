@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, ActivityIndicator, Text, TouchableHighlight, ImageBackground } from 'react-native';
+import { ScrollView, View, Text, TouchableHighlight, ImageBackground } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useFocusStoreKey } from '../hook/store';
 import LoadingIndicator from '../components/LoadingIndicator'
+import BackgBackgroudView from '../components/BackgroudView'
 
 async function getVideos() {
     const url = 'https://code-space.netlify.app/flutter/videos.json'
@@ -55,38 +56,44 @@ function Home() {
 
     const commonStyle = {
         flex: 1,
-        backgroundColor: '#000'
+        backgroundColor: 'transparent'
     }
 
-    return loading ? (
-        <View style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...commonStyle
-        }}>
-            <LoadingIndicator />
-        </View>
-    ) : (
-        <ScrollView style={commonStyle} contentInsetAdjustmentBehavior="automatic">
-            <View style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap'
-            }}>
-                {
-                    videoList.map(
-                        (section, index) => (
-                            <VideoSection
-                                key={index}
-                                index={index}
-                                autoFocus={focused}
-                                onFocus={index => setFocused(index)}
-                                section={section}
-                            />
-                        )
-                    )
-                }
-            </View>
-        </ScrollView>
+    return (
+        <BackgBackgroudView>
+            {
+                loading ? (
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        ...commonStyle
+                    }}>
+                        <LoadingIndicator />
+                    </View>
+                ) : (
+                    <ScrollView style={commonStyle} contentInsetAdjustmentBehavior="automatic">
+                        <View style={{
+                            flexDirection: 'row',
+                            flexWrap: 'wrap'
+                        }}>
+                            {
+                                videoList.map(
+                                    (section, index) => (
+                                        <VideoSection
+                                            key={index}
+                                            index={index}
+                                            autoFocus={focused}
+                                            onFocus={index => setFocused(index)}
+                                            section={section}
+                                        />
+                                    )
+                                )
+                            }
+                        </View>
+                    </ScrollView>
+                )
+            }
+        </BackgBackgroudView>
     )
 }
 
@@ -97,20 +104,20 @@ function VideoSection({ index, autoFocus, section, onFocus }: { index: number, a
 
     return (
         <TouchableHighlight style={{
-            width: '33.333333%',
-        }} hasTVPreferredFocus={isFocused} onFocus={() => onFocus(index)} onPress={
+            width: '25%',
+        }} underlayColor="transparent" hasTVPreferredFocus={isFocused} onFocus={() => onFocus(index)} onPress={
             () => navigation.navigate({
                 name: 'collection' as never,
                 params: section as never
             })
         }>
             <View style={{
-                padding: 10
+                padding: 8
             }}>
                 <View style={{
-                    borderRadius: 16,
+                    borderRadius: 8,
                     overflow: 'hidden',
-                    borderWidth: 8,
+                    borderWidth: 4,
                     opacity: isFocused ? 1 : .5,
                     borderColor: isFocused ? 'cyan' : '#fff',
                     height: 200
@@ -119,7 +126,7 @@ function VideoSection({ index, autoFocus, section, onFocus }: { index: number, a
                         flex: 1,
                         justifyContent: 'flex-end',
                         alignItems: 'flex-end'
-                    }} blurRadius={5}>
+                    }}>
                         <View style={{
                             padding: 10
                         }}>

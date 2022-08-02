@@ -40,7 +40,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     )
                 );
             }
-            else if (event.eventType === 'playPause') {
+            else if (event.eventType === 'select') {
                 setPaused(paused => !paused)
             }
         }
@@ -59,7 +59,6 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
         }}>
             <Video
                 source={{ uri: url }}
-                controls={!loading && keysEnable}
                 onReadyForDisplay={() => setLoading(false)}
                 onProgress={onProgress}
                 /* @ts-ignore */
