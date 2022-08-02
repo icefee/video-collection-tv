@@ -120,7 +120,7 @@ function VideoSection({ index, autoFocus, section, onFocus }: { index: number, a
                     borderWidth: 4,
                     opacity: isFocused ? 1 : .5,
                     borderColor: isFocused ? 'cyan' : '#fff',
-                    height: 200
+                    height: 180
                 }}>
                     <ImageBackground resizeMode="cover" source={require('../assets/cover.jpeg')} style={{
                         flex: 1,

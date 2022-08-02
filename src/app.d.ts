@@ -9,6 +9,13 @@ declare module 'react-native-video' {
         playableDuration: number;
         seekableDuration: number;
     }
+    export type VideoInfo = {
+        duration: number;
+    }
+    export type SeekParams = {
+        currentTime: number;
+        seekTime: number;
+    }
     const _default: ClassicComponentClass<{
         source: {
             uri: string;
@@ -16,7 +23,9 @@ declare module 'react-native-video' {
         controls?: boolean;
         paused?: boolean;
         onReadyForDisplay?: () => void;
+        onLoad?: (info: VideoInfo) => void;
         onProgress?: (params: ProcessParams) => void;
+        onSeek?: (params: SeekParams) => void;
         style?: StyleProp<ViewStyle>
     }>;
 
