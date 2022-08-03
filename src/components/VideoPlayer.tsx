@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, useTVEventHandler, type HWEvent, Image } from 'react-native';
+import { View, Text, useTVEventHandler, type HWEvent, TouchableWithoutFeedback, Image } from 'react-native';
 import Video, { type ProcessParams, type PlayerRef, type VideoInfo } from 'react-native-video';
 import LoadingIndicator from './LoadingIndicator';
 import { FadeView } from './Animated'
@@ -112,13 +112,15 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                 alignItems: 'center',
                 backgroundColor: 'rgba(0, 0, 0, .3)',
             }} in={paused}>
-                <Image
-                    source={require('../assets/pause.png')}
-                    style={{
-                        width: 100,
-                        resizeMode: 'contain'
-                    }}
-                />
+                <TouchableWithoutFeedback hasTVPreferredFocus onPress={() => setPaused(paused => !paused)}>
+                    <Image
+                        source={require('../assets/pause.png')}
+                        style={{
+                            width: 100,
+                            resizeMode: 'contain'
+                        }}
+                    />
+                </TouchableWithoutFeedback>
             </FadeView>
             <FadeView in={paused || seeking} style={{
                 position: 'absolute',

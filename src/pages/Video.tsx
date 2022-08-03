@@ -52,7 +52,6 @@ function Video() {
             setFocused(storeFocus)
         }
         else {
-            setStoreFocus(focused)
             setFocused(-1)
         }
     }, [isFocused])
@@ -80,14 +79,14 @@ function Video() {
                     padding: 10,
                     flexDirection: 'row'
                 }}>
-                    {/* <View style={{
+                    <View style={{
                         width: 300,
                         height: 200,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
                         {playingUrl === '' ? <LoadingIndicator /> : <VideoPlayer url={playingUrl} />}
-                    </View> */}
+                    </View>
                     <View style={{ padding: 10 }}>
                         <Text style={{ fontSize: 20, color: '#fff' }}>{videoInfo.title}</Text>
                         <View style={{
@@ -117,10 +116,10 @@ function Video() {
                                                 <EpisodeItem
                                                     key={index}
                                                     hasTVPreferredFocus={index === focused}
-                                                    active={isActiveVideo(m3u8)}
+                                                    // active={isActiveVideo(m3u8)}
                                                     onFocus={
                                                         () => {
-                                                            setFocused(index);
+                                                            setStoreFocus(index);
                                                             setPlayingUrl(
                                                                 getM3u8Uri((videoInfo as Episode).url_template!, m3u8)
                                                             )
@@ -146,7 +145,7 @@ function Video() {
     )
 }
 
-function EpisodeItem({ hasTVPreferredFocus = false, active = false, onFocus, onPress, children }: {
+function EpisodeItem({ hasTVPreferredFocus = false, onFocus, onPress, children }: {
     hasTVPreferredFocus?: boolean;
     active?: boolean;
     onFocus?: () => void;
@@ -158,13 +157,16 @@ function EpisodeItem({ hasTVPreferredFocus = false, active = false, onFocus, onP
             width: '12.5%',
             padding: 5
         }}>
-            <TouchableHighlight underlayColor="rgba(0, 255, 255, .3)" hasTVPreferredFocus={hasTVPreferredFocus} style={{
-                borderWidth: 2,
-                height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderColor: active ? 'cyan' : '#fff'
-            }} onFocus={onFocus} onPress={onPress}>
+            <TouchableHighlight
+                underlayColor="rgba(0, 255, 255, .3)"
+                hasTVPreferredFocus={hasTVPreferredFocus}
+                style={{
+                    borderWidth: 2,
+                    height: 40,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderColor: '#fff'
+                }} onFocus={onFocus} onPress={onPress}>
                 <Text style={{ color: '#fff' }}>{children}</Text>
             </TouchableHighlight>
         </View>

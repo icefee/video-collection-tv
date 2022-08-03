@@ -22,7 +22,6 @@ function Collection() {
             setFocused(storeFocus)
         }
         else {
-            setStoreFocus(focused)
             setFocused(-1)
         }
     }, [isFocused])
@@ -54,7 +53,7 @@ function Collection() {
                                     <VideoCollection
                                         video={video}
                                         autoFocus={focused}
-                                        onFocus={index => setFocused(index)}
+                                        onFocus={index => setStoreFocus(index)}
                                         index={index}
                                         key={index}
                                     />
@@ -74,20 +73,17 @@ function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, a
     const isFocused = autoFocus === index;
 
     return (
-        <TouchableHighlight underlayColor="transparent" hasTVPreferredFocus={isFocused} style={{
-            width: '25%'
-        }} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
-            name: 'video' as never,
-            params: video as never
-        })}>
-            <View style={{
-                padding: 10
-            }}>
+        <View style={{
+            width: '25%',
+            padding: 10
+        }}>
+            <TouchableHighlight underlayColor="cyan" hasTVPreferredFocus={isFocused} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
+                name: 'video' as never,
+                params: video as never
+            })}>
                 <View style={{
                     borderWidth: 4,
-                    borderRadius: 8,
-                    borderColor: isFocused ? 'cyan' : '#fff',
-                    opacity: isFocused ? 1 : .5
+                    borderColor: '#fff'
                 }}>
                     <ImageBackground resizeMode="cover" source={require('../assets/episode.jpeg')} style={{
                         flex: 1,
@@ -105,8 +101,8 @@ function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, a
                         </View>
                     </ImageBackground>
                 </View>
-            </View>
-        </TouchableHighlight>
+            </TouchableHighlight>
+        </View>
     )
 }
 
