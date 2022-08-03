@@ -70,14 +70,13 @@ function Collection() {
 function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, autoFocus: number, index: number, onFocus: (index: number) => void }) {
 
     const navigation = useNavigation();
-    const isFocused = autoFocus === index;
 
     return (
         <View style={{
             width: '25%',
             padding: 10
         }}>
-            <TouchableHighlight underlayColor="cyan" hasTVPreferredFocus={isFocused} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
+            <TouchableHighlight underlayColor="cyan" hasTVPreferredFocus={autoFocus === index} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
                 name: 'video' as never,
                 params: video as never
             })}>

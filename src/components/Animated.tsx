@@ -14,7 +14,7 @@ export const FadeView: React.FC<FadeViewProps> = (props) => {
             fadeAnim,
             {
                 toValue: props.in ? 1 : 0,
-                duration: 3000,
+                duration: 1000,
                 useNativeDriver: true
             }
         ).start();

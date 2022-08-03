@@ -25,6 +25,7 @@ declare module 'react-native-video' {
         onReadyForDisplay?: () => void;
         onLoad?: (info: VideoInfo) => void;
         onProgress?: (params: ProcessParams) => void;
+        onPlaybackStateChanged?: (params: { isPlaying: boolean; }) => void;
         onSeek?: (params: SeekParams) => void;
         style?: StyleProp<ViewStyle>
     }>;

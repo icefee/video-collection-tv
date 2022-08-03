@@ -49,7 +49,6 @@ function Home() {
             setFocused(storeFocus)
         }
         else {
-            setStoreFocus(focused)
             setFocused(-1)
         }
     }, [isFocused])
@@ -83,7 +82,7 @@ function Home() {
                                             key={index}
                                             index={index}
                                             autoFocus={focused}
-                                            onFocus={index => setFocused(index)}
+                                            onFocus={index => setStoreFocus(index)}
                                             section={section}
                                         />
                                     )
@@ -100,26 +99,22 @@ function Home() {
 function VideoSection({ index, autoFocus, section, onFocus }: { index: number, autoFocus: number, onFocus: (index: number) => void, section: Section }) {
 
     const navigation = useNavigation();
-    const isFocused = autoFocus === index;
 
     return (
-        <TouchableHighlight style={{
+        <View style={{
             width: '25%',
-        }} underlayColor="transparent" hasTVPreferredFocus={isFocused} onFocus={() => onFocus(index)} onPress={
+            padding: 10
+        }}><TouchableHighlight underlayColor="cyan" hasTVPreferredFocus={autoFocus === index} onFocus={() => onFocus(index)} onPress={
             () => navigation.navigate({
                 name: 'collection' as never,
                 params: section as never
             })
         }>
-            <View style={{
-                padding: 8
-            }}>
                 <View style={{
                     borderRadius: 8,
                     overflow: 'hidden',
                     borderWidth: 4,
-                    opacity: isFocused ? 1 : .5,
-                    borderColor: isFocused ? 'cyan' : '#fff',
+                    borderColor: '#fff',
                     height: 180
                 }}>
                     <ImageBackground resizeMode="cover" source={require('../assets/cover.jpeg')} style={{
@@ -138,8 +133,8 @@ function VideoSection({ index, autoFocus, section, onFocus }: { index: number, a
                         </View>
                     </ImageBackground>
                 </View>
-            </View>
-        </TouchableHighlight>
+            </TouchableHighlight>
+        </View>
     )
 }
 

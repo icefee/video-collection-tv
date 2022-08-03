@@ -22,14 +22,13 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
     const [loading, setLoading] = useState(false);
     const playerRef = useRef<PlayerRef>()
 
-    const timeoutRef = useRef<unknown>()
+    const timeoutRef = useRef<number>()
+    const [overlayShow, setOverlayShow] = useState(false)
 
     const [paused, setPaused] = useState(false)
     const [seeking, setSeeking] = useState(false)
 
     const [totalDuration, setTotalDuration] = useState(0)
-
-    const [keyType, setKeyType] = useState('none')
 
     const [process, setProcess] = useState<ProcessParams>({
         currentTime: 0,
@@ -42,27 +41,32 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
     }, [url])
 
     const onProgress = (params: ProcessParams) => {
-        setProcess(params)
+        if (!seeking) {
+            setProcess(params)
+        }
     }
 
     const tvEventHandler = (event: HWEvent) => {
-        setKeyType(event.eventType)
         if (keysEnable) {
             if (event.eventType === 'left' || event.eventType === 'right') {
-                playerRef.current?.seek(
-                    Math.max(
-                        0,
-                        Math.min(
-                            event.eventType === 'left' ? process.currentTime - 15 : process.currentTime + 15,
-                            process.seekableDuration
-                        )
+                const nextDuration = Math.max(
+                    0,
+                    Math.min(
+                        event.eventType === 'left' ? process.currentTime - 15 : process.currentTime + 15,
+                        process.seekableDuration
                     )
                 );
+                playerRef.current?.seek(nextDuration);
+                setProcess(params => ({
+                    ...params,
+                    currentTime: nextDuration
+                }))
+                setOverlayShow(true);
                 setSeeking(true)
             }
-            else if (event.eventType === 'select' || event.eventType === 'playPause' || event.eventType === 'center') {
-                setPaused(paused => !paused)
-            }
+            // else if (event.eventType === 'select') {
+            //     setPaused(paused => !paused)
+            // }
         }
     };
 
@@ -73,12 +77,19 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
     }
 
     const onSeek = () => {
+        clearControlDismissTimeout()
+        createControlTimeout()
+    }
+
+    const createControlTimeout = () => {
+        /* @ts-ignore */
+        timeoutRef.current = setTimeout(() => setOverlayShow(false), 3000)
+    }
+    const clearControlDismissTimeout = () => {
         if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current as number)
+            clearTimeout(timeoutRef.current)
+            timeoutRef.current = undefined;
         }
-        timeoutRef.current = setTimeout(() => {
-            setSeeking(false)
-        }, 5000);
     }
 
     return (
@@ -98,6 +109,16 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                 ref={ref => playerRef.current = ref}
                 onLoad={onLoad}
                 paused={paused}
+                onPlaybackStateChanged={
+                    ({ isPlaying }) => {
+                        if (isPlaying) {
+                            createControlTimeout()                            
+                        }
+                        else {
+                            clearControlDismissTimeout()
+                        }
+                    }
+                }
                 onSeek={onSeek}
                 style={{
                     width: '100%',
@@ -112,7 +133,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                 alignItems: 'center',
                 backgroundColor: 'rgba(0, 0, 0, .3)',
             }} in={paused}>
-                <TouchableWithoutFeedback hasTVPreferredFocus onPress={() => setPaused(paused => !paused)}>
+                <TouchableWithoutFeedback hasTVPreferredFocus onPress={() => setPaused(!paused)}>
                     <Image
                         source={require('../assets/pause.png')}
                         style={{
@@ -122,7 +143,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     />
                 </TouchableWithoutFeedback>
             </FadeView>
-            <FadeView in={paused || seeking} style={{
+            <FadeView in={paused || overlayShow} style={{
                 position: 'absolute',
                 width: '100%',
                 flexDirection: 'row',
@@ -171,16 +192,6 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     </View>
                 )
             }
-            <View style={{
-                position: 'absolute',
-                right: 20,
-                top: 20
-            }}>
-                <Text style={{
-                    color: '#fff',
-                    fontSize: 18
-                }}>keyType: {keyType}</Text>
-            </View>
         </View>
     )
 }
