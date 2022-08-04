@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, ScrollView, TouchableHighlight, Text } from 'react-native';
 import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
 import VideoPlayer from '../components/VideoPlayer';
-import LoadingIndicator from '../components/LoadingIndicator';
 import { useFocusStoreKey } from '../hook/store'
 import BackgroundView from '../components/BackgroudView';
 
@@ -25,6 +24,9 @@ function Video() {
     const navigation = useNavigation()
 
     const [focused, setFocused] = useState(0)
+
+    const [activeEpisode, setActiveEpisode] = useState(0)
+
     const isFocused = useIsFocused();
     const [storeFocus, setStoreFocus] = useFocusStoreKey('video')
 
@@ -36,16 +38,31 @@ function Video() {
         () => 'episodes' in videoInfo,
         [videoInfo]
     )
-    const [playingUrl, setPlayingUrl] = useState('')
+    const playingUrl = useMemo<string>(() => {
+        if (isEpisode) {
+            const video = videoInfo as Episode;
+            return getM3u8Uri(video.url_template!, video.m3u8_list[activeEpisode])
+        }
+        else {
+            return (videoInfo as Film).m3u8_url
+        }
+    }, [activeEpisode])
 
     const setFullscreen = () => {
+        let episodes = null;
+        let playing = 0;
+        if (isEpisode) {
+            const video = videoInfo as Episode;
+            episodes = video.m3u8_list.map(m3u8 => getM3u8Uri(video.url_template!, m3u8))
+            playing = activeEpisode;
+        }
+
         navigation.navigate({
             name: 'player' as never,
-            params: { url: playingUrl } as never
+            params: { url: playingUrl, playing, episodes } as never
         })
+        setStoreFocus(activeEpisode)
     }
-
-    const isActiveVideo = (m3u8: M3u8Video) => getM3u8Uri((videoInfo as Episode).url_template!, m3u8) === playingUrl;
 
     useEffect(() => {
         if (isFocused) {
@@ -57,16 +74,6 @@ function Video() {
     }, [isFocused])
 
     useEffect(() => {
-        if (isEpisode) {
-            const video = videoInfo as Episode;
-            setPlayingUrl(
-                getM3u8Uri(video.url_template!, video.m3u8_list[0])
-            )
-        }
-        else {
-            const video = videoInfo as Film;
-            setPlayingUrl(video.m3u8_url)
-        }
         return () => {
             setStoreFocus(0)
         }
@@ -85,7 +92,7 @@ function Video() {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        {playingUrl === '' ? <LoadingIndicator /> : <VideoPlayer url={playingUrl} />}
+                        <VideoPlayer url={playingUrl} />
                     </View>
                     <View style={{ padding: 10 }}>
                         <Text style={{ fontSize: 20, color: '#fff' }}>{videoInfo.title}</Text>
@@ -118,12 +125,7 @@ function Video() {
                                                     hasTVPreferredFocus={index === focused}
                                                     // active={isActiveVideo(m3u8)}
                                                     onFocus={
-                                                        () => {
-                                                            setStoreFocus(index);
-                                                            setPlayingUrl(
-                                                                getM3u8Uri((videoInfo as Episode).url_template!, m3u8)
-                                                            )
-                                                        }
+                                                        () => setActiveEpisode(index)
                                                     }
                                                     onPress={setFullscreen}>{`第${index + 1}集`}</EpisodeItem>
                                             )

@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableHighlight, ImageBackground } from 'react-native';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useFocusStoreKey } from '../hook/store';
-import LoadingIndicator from '../components/LoadingIndicator'
-import BackgBackgroudView from '../components/BackgroudView'
+import LoadingIndicator from '../components/LoadingIndicator';
+import BackgBackgroudView from '../components/BackgroudView';
+
+const shieldSections = [
+    '韩国电影',
+    '纪录片'
+]
 
 async function getVideos() {
     const url = 'https://code-space.netlify.app/flutter/videos.json'
     const response = await fetch(url)
-    const json = await response.json()
+    const json = await (response.json() as Promise<{
+        videos: Section[]
+    }>)
     // const json = html.match( // /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*)<\/script\>/
     //     // new RegExp('(?<=<script id="__NEXT_DATA__" type="application/json">).+?(?=</script>)', 'g')
     //     /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*)<\/script\>/
@@ -22,7 +29,9 @@ async function getVideos() {
     //     }
     // } = JSON.parse(json);
     // return videos;
-    return json.videos;
+    return json.videos.filter(
+        ({ section }) => !shieldSections.includes(section)
+    );
 }
 
 function Home() {
@@ -104,16 +113,18 @@ function VideoSection({ index, autoFocus, section, onFocus }: { index: number, a
         <View style={{
             width: '25%',
             padding: 10
-        }}><TouchableHighlight underlayColor="cyan" hasTVPreferredFocus={autoFocus === index} onFocus={() => onFocus(index)} onPress={
-            () => navigation.navigate({
-                name: 'collection' as never,
-                params: section as never
-            })
-        }>
+        }}>
+            <TouchableHighlight style={{
+                padding: 4,
+            }} underlayColor="cyan" hasTVPreferredFocus={autoFocus === index} onFocus={() => onFocus(index)} onPress={
+                () => navigation.navigate({
+                    name: 'collection' as never,
+                    params: section as never
+                })
+            }>
                 <View style={{
-                    borderRadius: 8,
                     overflow: 'hidden',
-                    borderWidth: 4,
+                    borderWidth: 2,
                     borderColor: '#fff',
                     height: 180
                 }}>

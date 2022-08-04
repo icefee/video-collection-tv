@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, useTVEventHandler, type HWEvent, TouchableWithoutFeedback, Image } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import Video, { type ProcessParams, type PlayerRef, type VideoInfo } from 'react-native-video';
 import LoadingIndicator from './LoadingIndicator';
 import { FadeView } from './Animated';
@@ -7,6 +8,7 @@ import { useBitSize } from '../hook/byteSize';
 
 interface VideoPlayerProps {
     url: string;
+    onEnd?: () => void;
     keysEnable?: boolean;
 }
 
@@ -18,7 +20,7 @@ function timeFormatter(sf: number): string {
     ).join(':')
 }
 
-function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
+function VideoPlayer({ url, onEnd, keysEnable = false }: VideoPlayerProps) {
 
     const [loading, setLoading] = useState(false);
     const playerRef = useRef<PlayerRef>()
@@ -33,21 +35,23 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
 
     const [totalDuration, setTotalDuration] = useState(0)
 
+    const isFocused = useIsFocused();
+
     const [process, setProcess] = useState<ProcessParams>({
         currentTime: 0,
         playableDuration: 0,
         seekableDuration: 0
     });
 
-    useEffect(() => {
-        setLoading(true);
-    }, [url])
-
     const onProgress = (params: ProcessParams) => {
         if (!seeking) {
             setProcess(params)
         }
     }
+
+    useEffect(() => {
+        setPaused(!isFocused)
+    }, [isFocused])
 
     const tvEventHandler = (event: HWEvent) => {
         if (keysEnable) {
@@ -127,6 +131,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     }
                 }
                 minLoadRetryCount={100}
+                onEnd={onEnd}
                 onSeek={onSeek}
                 style={{
                     width: '100%',
@@ -145,7 +150,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     <Image
                         source={require('../assets/pause.png')}
                         style={{
-                            width: 100,
+                            width: 75,
                             resizeMode: 'contain'
                         }}
                     />
@@ -156,13 +161,15 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                 width: '100%',
                 flexDirection: 'row',
                 alignItems: 'center',
-                bottom: 0,
+                bottom: 10,
                 backgroundColor: 'rgba(0, 0, 0, .3)'
             }}>
-                <Text style={{ color: '#fff' }}>{timeFormatter(process.currentTime)}</Text>
+                <Text style={{ color: '#fff', fontSize: 20 }}>{timeFormatter(process.currentTime)}</Text>
                 <View style={{
                     flex: 1,
-                    height: 4,
+                    height: 8,
+                    overflow: 'hidden',
+                    borderRadius: 4,
                     backgroundColor: '#777',
                     marginHorizontal: 10,
                     position: 'relative'
@@ -182,7 +189,7 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                         height: '100%'
                     }} />
                 </View>
-                <Text style={{ color: '#fff' }}>{timeFormatter(totalDuration)}</Text>
+                <Text style={{ color: '#fff', fontSize: 20 }}>{timeFormatter(totalDuration)}</Text>
             </FadeView>
             {
                 loading && (

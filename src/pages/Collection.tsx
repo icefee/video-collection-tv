@@ -76,12 +76,14 @@ function VideoCollection({ video, autoFocus, index, onFocus }: { video: Video, a
             width: '25%',
             padding: 10
         }}>
-            <TouchableHighlight underlayColor="cyan" hasTVPreferredFocus={autoFocus === index} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
+            <TouchableHighlight style={{
+                padding: 4
+            }} underlayColor="cyan" hasTVPreferredFocus={autoFocus === index} onFocus={() => onFocus(index)} onPress={() => navigation.navigate({
                 name: 'video' as never,
                 params: video as never
             })}>
                 <View style={{
-                    borderWidth: 4,
+                    borderWidth: 2,
                     borderColor: '#fff'
                 }}>
                     <ImageBackground resizeMode="cover" source={require('../assets/episode.jpeg')} style={{
