@@ -53,6 +53,10 @@ function VideoPlayer({ url, onEnd, keysEnable = false }: VideoPlayerProps) {
         setPaused(!isFocused)
     }, [isFocused])
 
+    useEffect(() => {
+        return () => clearControlDismissTimeout()
+    }, [])
+
     const tvEventHandler = (event: HWEvent) => {
         if (keysEnable) {
             if (event.eventType === 'left' || event.eventType === 'right') {
@@ -170,7 +174,7 @@ function VideoPlayer({ url, onEnd, keysEnable = false }: VideoPlayerProps) {
                     height: 8,
                     overflow: 'hidden',
                     borderRadius: 4,
-                    backgroundColor: '#777',
+                    backgroundColor: 'rgba(255, 255, 255, .3)',
                     marginHorizontal: 10,
                     position: 'relative'
                 }}>
@@ -178,7 +182,7 @@ function VideoPlayer({ url, onEnd, keysEnable = false }: VideoPlayerProps) {
                         position: 'absolute',
                         left: 0,
                         width: process.playableDuration * 100 / totalDuration + '%',
-                        backgroundColor: '#ccc',
+                        backgroundColor: 'rgba(255, 255, 255, .75)',
                         height: '100%'
                     }} />
                     <View style={{

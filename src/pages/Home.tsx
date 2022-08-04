@@ -76,7 +76,7 @@ function Home() {
                         alignItems: 'center',
                         ...commonStyle
                     }}>
-                        <LoadingIndicator />
+                        <LoadingIndicator color="cyan" />
                     </View>
                 ) : (
                     <ScrollView style={commonStyle} contentInsetAdjustmentBehavior="automatic">
