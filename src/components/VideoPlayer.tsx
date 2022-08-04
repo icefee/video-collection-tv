@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, useTVEventHandler, type HWEvent, TouchableWithoutFeedback, Image } from 'react-native';
 import Video, { type ProcessParams, type PlayerRef, type VideoInfo } from 'react-native-video';
 import LoadingIndicator from './LoadingIndicator';
-import { FadeView } from './Animated'
+import { FadeView } from './Animated';
+import { useBitSize } from '../hook/byteSize';
 
 interface VideoPlayerProps {
     url: string;
@@ -27,6 +28,8 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
 
     const [paused, setPaused] = useState(false)
     const [seeking, setSeeking] = useState(false)
+
+    const [bitSize, setBitrate] = useBitSize(0)
 
     const [totalDuration, setTotalDuration] = useState(0)
 
@@ -103,7 +106,11 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
         }}>
             <Video
                 source={{ uri: url }}
-                onReadyForDisplay={() => setLoading(false)}
+                onBuffer={({ isBuffering }) => setLoading(isBuffering)}
+                reportBandwidth
+                onBandwidthUpdate={
+                    ({ bitrate }) => setBitrate(bitrate)
+                }
                 onProgress={onProgress}
                 /* @ts-ignore */
                 ref={ref => playerRef.current = ref}
@@ -112,13 +119,14 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                 onPlaybackStateChanged={
                     ({ isPlaying }) => {
                         if (isPlaying) {
-                            createControlTimeout()                            
+                            createControlTimeout()
                         }
                         else {
                             clearControlDismissTimeout()
                         }
                     }
                 }
+                minLoadRetryCount={100}
                 onSeek={onSeek}
                 style={{
                     width: '100%',
@@ -192,6 +200,13 @@ function VideoPlayer({ url, keysEnable = false }: VideoPlayerProps) {
                     </View>
                 )
             }
+            <View style={{
+                position: 'absolute',
+                right: 10,
+                top: 10
+            }}>
+                <Text style={{ color: '#fff', fontSize: 12 }}>{bitSize}</Text>
+            </View>
         </View>
     )
 }
