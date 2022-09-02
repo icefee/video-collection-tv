@@ -87,8 +87,8 @@ function Video() {
                     flexDirection: 'row'
                 }}>
                     <View style={{
-                        width: 300,
-                        height: 200,
+                        width: 500,
+                        height: 300,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>

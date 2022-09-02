@@ -90,6 +90,7 @@ function VideoPlayer({ url, onEnd, keysEnable = false }: VideoPlayerProps) {
     const onSeek = () => {
         clearControlDismissTimeout()
         createControlTimeout()
+        setSeeking(false)
     }
 
     const createControlTimeout = () => {
