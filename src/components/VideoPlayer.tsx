@@ -153,10 +153,11 @@ function VideoPlayer({ url, onEnd, keysEnable = false }: VideoPlayerProps) {
             }} in={paused}>
                 <TouchableWithoutFeedback hasTVPreferredFocus onPress={() => setPaused(!paused)}>
                     <Image
-                        source={require('../assets/pause.png')}
+                        source={paused ? require('../assets/play.png') : require('../assets/pause.png')}
                         style={{
-                            width: 75,
-                            resizeMode: 'contain'
+                            width: 120,
+                            resizeMode: 'contain',
+                            opacity: .75
                         }}
                     />
                 </TouchableWithoutFeedback>
