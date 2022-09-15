@@ -11,7 +11,7 @@ const shieldSections = [
 ]
 
 async function getVideos() {
-    const url = 'https://code-space.netlify.app/flutter/videos.json'
+    const url = 'https://code-in-life.netlify.app/flutter/videos.json'
     const response = await fetch(url)
     const json = await (response.json() as Promise<{
         videos: Section[]
